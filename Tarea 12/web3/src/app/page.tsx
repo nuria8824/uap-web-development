@@ -1,11 +1,11 @@
 // app/page.tsx
-import ConnectAndFaucet from "@/components/ConnectAndFaucet";
+import FaucetDApp from "@/components/FaucetDApp";
 
 export default function HomePage() {
   return (
     <main>
       <h1>Faucet Token</h1>
-      <ConnectAndFaucet />
+      <FaucetDApp />
     </main>
   );
 }

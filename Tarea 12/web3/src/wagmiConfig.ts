@@ -8,11 +8,7 @@ const walletConnectProjectId =
 export const wagmiConfig = createConfig({
   chains: [sepolia],
   connectors: [
-    injected(),
-    walletConnect({
-      projectId: walletConnectProjectId,
-      showQrModal: true, // para que abra el QR
-    }),
+    injected({ shimDisconnect: true}),
   ],
   transports: {
     [sepolia.id]: http("https://ethereum-sepolia-rpc.publicnode.com"),
