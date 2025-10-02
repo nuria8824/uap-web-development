@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { ethers } from "ethers";
+import { FAUCET_TOKEN_ABI } from "@/lib/faucetAbi";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,16 +31,8 @@ export async function POST(req: NextRequest) {
     }
 
     const wallet = new ethers.Wallet(privateKey, provider);
-
-    const contractABI = [
-      "function claimTokens() nonpayable",
-      "function hasAddressClaimed(address user) view returns (bool)",
-      "function balanceOf(address account) view returns (uint256)",
-      "function getFaucetAmount() view returns (uint256)",
-      "function getFaucetUsers() view returns (address[])",
-    ];
     const contractAddress = process.env.CONTRACT_ADDRESS as string;
-    const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+    const contract = new ethers.Contract(contractAddress, FAUCET_TOKEN_ABI, wallet);
 
     const hasClaimed = await contract.hasAddressClaimed(address);
     if (hasClaimed) {

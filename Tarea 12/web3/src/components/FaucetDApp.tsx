@@ -8,7 +8,7 @@ export default function FaucetDApp() {
   const { connect, connectors } = useConnect()
   const metaMaskConnector = connectors.find(c => c.id === "injected")
 
-  const [mounted, setMounted] = useState(false) // 🔹 Flag para evitar mismatches
+  const [mounted, setMounted] = useState(false)
   const [jwt, setJwt] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +40,9 @@ export default function FaucetDApp() {
         body: JSON.stringify({ address }),
       })
       const data = await resMsg.json()
+      console.log("Data del mensaje siwe: ", data);
       const message = data.message
+      console.log("message del siwe: ", message);
       if (!message) throw new Error("No se recibió mensaje SIWE")
 
       const signature = await (window.ethereum as any).request({
@@ -48,7 +50,7 @@ export default function FaucetDApp() {
         params: [message, address],
       })
 
-      const resSign = await fetch(`/api/auth/signin`, {
+      const resSign = await fetch(`/api/auth/signIn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, signature }),

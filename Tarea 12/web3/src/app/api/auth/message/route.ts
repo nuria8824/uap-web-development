@@ -1,31 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SiweMessage, generateNonce } from "siwe";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { address } = body;
-
+    const { address } = await req.json();
     if (!address) {
       return NextResponse.json({ error: "Address requerida" }, { status: 400 });
     }
 
-    const nonce = Math.random().toString(36).substring(2, 10);
-    const issuedAt = new Date().toISOString();
+    const domain = req.headers.get("host") || "localhost:3000";
 
-    const messageString = [
-      "localhost wants you to sign in with your Ethereum account:",
+    const siweMessage = new SiweMessage({
+      domain,
       address,
-      "",
-      "Inicia sesión en el Faucet DApp",
-      "",
-      "URI: http://localhost:3000",
-      "Version: 1",
-      "Chain ID: 11155111",
-      `Nonce: ${nonce}`,
-      `Issued At: ${issuedAt}`,
-    ].join("\n");
+      // statement: "Inicia sesión en el Faucet DApp",
+      uri: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      version: "1",
+      chainId: 11155111, // sepolia
+      nonce: generateNonce(),
+    });
 
-    return NextResponse.json({ message: messageString });
+    const messageStr = siweMessage.prepareMessage();
+    console.log("🔹 Mensaje SIWE generado:\n", messageStr);
+
+    return NextResponse.json({ message: siweMessage.prepareMessage() });
   } catch (err: any) {
     console.error("❌ Error al crear mensaje SIWE:", err.message);
     return NextResponse.json({ error: "Error al crear el mensaje SIWE" }, { status: 500 });
