@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from "react"
 import { useAccount, useConnect } from "wagmi"
+import { useWeb3Modal } from "@web3modal/react"
 
 export default function FaucetDApp() {
   const { address, isConnected } = useAccount()
-  const { connect, connectors } = useConnect()
-  const metaMaskConnector = connectors.find(c => c.id === "injected")
+  const { open } = useWeb3Modal()
+  // const { connect, connectors } = useConnect()
+  // const metaMaskConnector = connectors.find(c => c.id === "injected")
 
   const [mounted, setMounted] = useState(false)
   const [jwt, setJwt] = useState<string | null>(null)
@@ -127,7 +129,7 @@ export default function FaucetDApp() {
     if (typeof window !== "undefined") localStorage.removeItem("jwt")
   }
 
-  // 🔹 Evitamos renderizar hasta que el cliente esté montado
+  // Evitamos renderizar hasta que el cliente esté montado
   if (!mounted) return null
 
   return (
@@ -138,12 +140,19 @@ export default function FaucetDApp() {
         <div className="bg-yellow-400 rounded-lg shadow p-6 flex flex-col justify-center">
           <p className="text-lg font-semibold text-black">Wallet conectada:</p>
           <code className="block text-black break-all">{address || "No conectada"}</code>
-          {!isConnected && metaMaskConnector && (
+          {!isConnected ? (
             <button
-              onClick={() => connect({ connector: metaMaskConnector })}
+              onClick={() => open()}
               className="bg-blue-700 text-black font-semibold px-6 py-2 rounded hover:bg-blue-800 transition mt-4"
             >
               Conectar Wallet
+            </button>
+          ) : (
+            <button
+              onClick={() => open({ view: 'Account' })} 
+              className="bg-gray-500 text-white font-semibold px-6 py-2 rounded hover:bg-gray-600 transition mt-4"
+            >
+              Abrir Configuración de Wallet
             </button>
           )}
         </div>

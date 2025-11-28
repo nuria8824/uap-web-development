@@ -8,6 +8,8 @@ import { ErrorMessage } from "./ErrorMessage";
 import { RateLimitIndicator } from "./RateLimitIndicator";
 import { validateConversation, sanitizeInput, validateInput } from "../utils/validation";
 import { Trash2, MessageSquare } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 type Message = {
   id: string;
@@ -23,6 +25,13 @@ export function ChatContainer() {
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationError, setConversationError] = useState<string>("");
+  const { logout, user } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   // Auto-scroll al final cuando hay nuevos mensajes
   useEffect(() => {
@@ -146,7 +155,7 @@ export function ChatContainer() {
         })
       });
 
-      console.log("📡 Respuesta recibida:", response.status);
+      console.log("Respuesta recibida:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -261,6 +270,18 @@ export function ChatContainer() {
         </div>
         
         <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-600">
+              Bienvenido, {user?.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition duration-150 ease-in-out"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+          
           <RateLimitIndicator />
           
           {messages.length > 0 && (
